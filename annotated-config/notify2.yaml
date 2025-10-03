@@ -1,0 +1,56 @@
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: pr2
+  namespace: flux-system
+
+  annotations:
+      test: happy-collab-with-my-friend
+  labels:
+    v: new
+spec:
+  type: slack
+  channel: new
+  address: https://slack.com/api/chat.postMessage
+  secretRef:
+    name: slack-bot-token
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: a2
+  namespace: flux-system
+
+  annotations:
+      test: happy-collab-with-my-friend
+  labels:
+    v: new
+spec:
+  providerRef:
+    name: pr2
+  eventSeverity: error
+  eventSources:
+    - kind: GitRepository
+      name: '*'
+    - kind: Kustomization
+      name: '*'
+---
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: r2
+  namespace: flux-system
+  annotations:
+      test: happy-collab-with-my-friend
+spec:
+  type: github
+  events:
+    - "ping"
+    - "push"
+  secretRef:
+    name: receiver-token
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: flux-system

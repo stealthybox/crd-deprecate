@@ -1,0 +1,48 @@
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
+kind: Provider
+metadata:
+  name: pr3
+  namespace: flux-system
+  labels:
+    v: new
+spec:
+  type: slack
+  channel: new
+  address: https://slack.com/api/chat.postMessage
+  secretRef:
+    name: slack-bot-token
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
+kind: Alert
+metadata:
+  name: a3
+  namespace: flux-system
+  labels:
+    v: new
+spec:
+  providerRef:
+    name: pr3
+  eventSeverity: error
+  eventSources:
+    - kind: GitRepository
+      name: '*'
+    - kind: Kustomization
+      name: '*'
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
+kind: Receiver
+metadata:
+  name: r3
+  namespace: flux-system
+spec:
+  type: github
+  events:
+    - "ping"
+    - "push"
+  secretRef:
+    name: receiver-token
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: flux-system

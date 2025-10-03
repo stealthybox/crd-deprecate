@@ -1,0 +1,53 @@
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: pr1
+  namespace: flux-system
+  labels:
+    v: new
+spec:
+  type: slack
+  channel: new
+  address: https://slack.com/api/chat.postMessage
+  secretRef:
+    name: slack-bot-token
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: a1
+  namespace: flux-system
+  labels:
+    v: new
+spec:
+  providerRef:
+    name: pr1
+  eventMetadata:
+    summary: Cluster addons impacted
+    env: new
+    cluster: my-cluster
+    region: us-east-2
+  eventSeverity: error
+  eventSources:
+    - kind: GitRepository
+      name: '*'
+    - kind: Kustomization
+      name: '*'
+---
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: r1
+  namespace: flux-system
+spec:
+  type: github
+  events:
+    - "ping"
+    - "push"
+  secretRef:
+    name: receiver-token
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: flux-system
